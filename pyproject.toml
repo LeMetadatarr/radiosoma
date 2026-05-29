@@ -13,7 +13,7 @@ dependencies = ["requests", "mediavocab>=0.1.0"]
 
 [project.optional-dependencies]
 test = ["pytest", "vcrpy", "pytest-vcr"]
-stealth = ["curl-cffi"]
+stealth = ["curl-cffi", "unblock_requests"]
 
 [project.urls]
 Homepage = "https://github.com/OpenJarbas/radiosoma"
