@@ -12,6 +12,7 @@ requires-python = ">=3.8"
 dependencies = ["requests", "mediavocab>=0.1.0"]
 
 [project.optional-dependencies]
+anon = ["anon_requests"]
 test = ["pytest", "vcrpy", "pytest-vcr"]
 stealth = ["curl-cffi", "unblock_requests"]
 
