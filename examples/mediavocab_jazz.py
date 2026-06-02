@@ -1,8 +1,8 @@
 """Rich mediavocab demo: fetch the Groove Salad channel, emit one
-``Release`` per stream variant and a ``Schedule`` of recent tracks."""
+``Release`` per stream variant and the recent tracks as ``MUSIC`` Works."""
 from radiosoma import get_recent_tracks, get_stations
 from radiosoma.converters import (
-    recent_tracks_to_schedule,
+    recent_tracks_to_works,
     station_to_releases,
 )
 
@@ -27,13 +27,13 @@ print(f"  country={releases[0].work.country} language={releases[0].work.language
 print(f"  runtime={releases[0].work.runtime}  (None = continuous live)")
 print()
 
-# Recent-tracks feed → Schedule of Programme entries.
+# Recent-tracks feed → one MUSIC Work per recently-played song.
 songs = get_recent_tracks(station.station_id)
-schedule = recent_tracks_to_schedule(songs, station)
-print(f"Schedule (source={schedule.source}, fetched_at={schedule.fetched_at}):")
-print(f"  window {schedule.valid_from} → {schedule.valid_until}")
-for prog in schedule.programmes[:5]:
+tracks = recent_tracks_to_works(songs, station)
+print(f"Recent tracks ({len(tracks)} MUSIC Works):")
+for work in tracks[:5]:
+    artist = work.credits[0].entity.name if work.credits else ""
     print(
-        f"  {prog.starts_at}  {prog.work.name}  "
-        f"album={prog.work.external_ids.get('track_album', '')!r}"
+        f"  {work.extra.get('played_at', '')}  {artist} — {work.title}  "
+        f"album={work.extra.get('album', '')!r}"
     )

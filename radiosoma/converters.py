@@ -7,11 +7,13 @@ SOMA FM channels are modelled per mediavocab axiom 8:
   ``StreamMode.CONTINUOUS``. SOMA exposes multiple bitrate/codec pairs
   per channel (e.g. 130 kbps AAC, 128 kbps MP3, 64 kbps HE-AAC,
   32 kbps HE-AAC); each is a separate ``Release`` of the same ``Work``.
-* Audio-only providers declare ``modality = {PlaybackModality.AUDIO}``.
+* Audio-only providers declare ``modality = {PlaybackType.AUDIO}``.
 
-Recent-tracks feeds (``https://somafm.com/songs/<id>.xml``) are surfaced as
-``Programme`` entries scheduled against the channel ``Work``, optionally
-wrapped in a ``Schedule`` for staleness tracking.
+Recent-tracks feeds (``https://somafm.com/songs/<id>.xml``) surface each
+recently-played song as a ``MediaType.MUSIC`` ``Work`` (it has title +
+artist identity); the play time is ephemeral runtime state and rides in
+``extra["played_at"]``. There is no schedule/now-playing vocabulary type —
+that is delivery-time state, not catalogue identity (axiom A3).
 """
 from __future__ import annotations
 
@@ -20,13 +22,12 @@ from typing import List, Optional
 
 from mediavocab import (
     MediaType,
-    PlaybackModality,
     Release as MvRelease,
     StreamMode,
     Work,
 )
-from mediavocab.models.entity import EntityKind, EntityRef
-from mediavocab.models.work import Programme, Schedule
+from mediavocab.models.entity import Credit, EntityKind, EntityRef
+from mediavocab.taxonomy import PlaybackType, RelationRole
 from mediavocab.taxonomy import genre as _genre
 
 from radiosoma import SomaFmStation, StreamVariant
@@ -34,7 +35,7 @@ from radiosoma import SomaFmStation, StreamVariant
 
 # Audio-only provider axis. Importable by consumers that need to reason
 # about the provider modality without instantiating a converter.
-MODALITY = {PlaybackModality.AUDIO}
+MODALITY = {PlaybackType.AUDIO}
 
 
 # Map SOMA's free-form ``<genre>`` tags to canonical
@@ -79,8 +80,8 @@ _GENRE_MAP = {
     "latin": _genre.GENRE_LATIN,
     "disco": _genre.GENRE_DISCO,
     "comedy": _genre.GENRE_COMEDY,
-    "news": _genre.GENRE_NEWS,
-    "talk": _genre.GENRE_TALK_SHOW,
+    # "news" / "talk" are broadcast formats, not genres (T1) — SOMA has no
+    # such channels; an unknown tag falls through as a raw lower-cased string.
     "spoken word": _genre.GENRE_SPOKEN_WORD,
     "drone": _genre.GENRE_AMBIENT,
     "experimental": _genre.GENRE_AMBIENT,
@@ -125,18 +126,6 @@ def _epoch_to_iso(value) -> Optional[str]:
     return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
 
 
-def _channel_ref(station: SomaFmStation) -> EntityRef:
-    """Build an ``EntityRef`` pointing at the channel ``Work``."""
-    ext: dict = {}
-    if station.station_id:
-        ext["soma_fm_channel_id"] = str(station.station_id)
-    return EntityRef(
-        name=station.title,
-        kind=EntityKind.SERIES,
-        external_ids=ext,
-    )
-
-
 def _station_work(station: SomaFmStation) -> Work:
     """Build the canonical ``Work`` for a SOMA channel."""
     extra: dict = {}
@@ -158,7 +147,7 @@ def _station_work(station: SomaFmStation) -> Work:
     return Work(
         title=station.title,
         media_type=MediaType.RADIO,
-        country="US",
+        broadcaster_country="US",   # RADIO country slot (COUNTRY_SLOT_FOR)
         language="en",
         # ``runtime`` is intentionally omitted (None): a continuous live
         # broadcast has no finite duration.
@@ -234,19 +223,19 @@ def station_to_releases(station: SomaFmStation) -> List[MvRelease]:
     return [_variant_to_release(work, station, v) for v in station.stream_variants]
 
 
-def song_to_programme(
+def song_to_work(
     song: dict,
     station: SomaFmStation,
-) -> Optional[Programme]:
-    """Convert a recent-tracks entry to a mediavocab :class:`Programme`.
+) -> Optional[Work]:
+    """Convert a recent-tracks entry to a ``MediaType.MUSIC`` :class:`Work`.
 
     ``song`` is a raw dict scraped from ``https://somafm.com/songs/<id>.xml``
     with keys ``title``, ``artist``, ``album``, ``date`` (unix epoch as str).
-    Returns ``None`` if the entry has no playable title.
+    Returns ``None`` if the entry has no title.
 
-    The programme's ``work`` is an :class:`EntityRef` describing the
-    individual song; ``track_artist`` and ``track_album`` (when present)
-    are mirrored into ``work.external_ids`` and ``programme.extra``.
+    The song's artist becomes a ``PERFORMER`` :class:`Credit`. The play time
+    (ephemeral runtime state), album art, and the channel it aired on ride in
+    ``extra`` — they are not catalogue identity (axiom A3).
     """
     title = (song.get("title") or "").strip()
     if not title:
@@ -254,77 +243,43 @@ def song_to_programme(
 
     artist = (song.get("artist") or "").strip()
     album = (song.get("album") or "").strip()
-    name = f"{artist} - {title}" if artist else title
 
-    work_ext: dict = {}
+    credits: List[Credit] = []
     if artist:
-        work_ext["track_artist"] = artist
-    if album:
-        work_ext["track_album"] = album
+        credits.append(Credit(
+            entity=EntityRef(name=artist, kind=EntityKind.GROUP),
+            relation_role=RelationRole.PERFORMER,
+        ))
 
-    track_extra: dict = {}
+    extra: dict = {
+        "played_at": _epoch_to_iso(song.get("date"))
+        or datetime.now(tz=timezone.utc).isoformat(),
+    }
     if album:
-        track_extra["album"] = album
-    if artist:
-        track_extra["artist"] = artist
+        extra["album"] = album
     if song.get("albumart"):
-        track_extra["albumart"] = song["albumart"]
+        extra["albumart"] = str(song["albumart"])
+    if station.station_id:
+        extra["soma_fm_channel_id"] = str(station.station_id)
 
-    work_ref = EntityRef(
-        name=name,
-        kind=EntityKind.OTHER,
-        external_ids=work_ext,
-    )
-
-    starts_at = _epoch_to_iso(song.get("date")) or datetime.now(
-        tz=timezone.utc
-    ).isoformat()
-
-    return Programme(
-        work=work_ref,
-        channel=_channel_ref(station),
-        starts_at=starts_at,
-        is_live=True,
-        is_repeat=False,
-        extra=track_extra,
+    return Work(
+        title=title,
+        media_type=MediaType.MUSIC,
+        credits=credits,
+        extra=extra,
     )
 
 
-def recent_tracks_to_programmes(
+def recent_tracks_to_works(
     songs: list,
     station: SomaFmStation,
-) -> List[Programme]:
-    """Vectorised :func:`song_to_programme` for a list of song dicts."""
-    out: List[Programme] = []
+) -> List[Work]:
+    """Map a recent-tracks feed to a list of ``MediaType.MUSIC`` Works,
+    most-recent first (SOMA's source order). Entries with no title are
+    skipped."""
+    out: List[Work] = []
     for s in songs or []:
-        prog = song_to_programme(s, station)
-        if prog is not None:
-            out.append(prog)
+        work = song_to_work(s, station)
+        if work is not None:
+            out.append(work)
     return out
-
-
-def recent_tracks_to_schedule(
-    songs: list,
-    station: SomaFmStation,
-) -> Schedule:
-    """Wrap the recent-tracks feed in a :class:`Schedule`.
-
-    The SOMA recent-tracks feed is a rolling log of recently played
-    songs; mediavocab models that as a ``Schedule`` with ``source =
-    "somafm.com"`` and ``fetched_at`` set to the current wall clock.
-    The first programme's ``starts_at`` becomes ``valid_from`` (oldest
-    SOMA returns first in source order is the most recent track, so we
-    take the min/max conservatively).
-    """
-    programmes = recent_tracks_to_programmes(songs, station)
-    starts = [p.starts_at for p in programmes if p.starts_at]
-    valid_from = min(starts) if starts else None
-    valid_until = max(starts) if starts else None
-    return Schedule(
-        channel=_channel_ref(station),
-        programmes=programmes,
-        source="somafm.com",
-        fetched_at=datetime.now(tz=timezone.utc).isoformat(),
-        valid_from=valid_from,
-        valid_until=valid_until,
-    )

@@ -14,7 +14,7 @@ from radiosoma import (
 )
 from radiosoma.converters import (
     _epoch_to_iso,
-    song_to_programme,
+    song_to_work,
 )
 
 
@@ -306,7 +306,7 @@ def test_epoch_to_iso_valid_returns_iso():
     assert out.startswith("20")
 
 
-def test_song_to_programme_albumart_propagates():
+def test_song_to_work_albumart_propagates():
     station = SomaFmStation({"id": "groovesalad", "title": "Groove Salad"})
     song = {
         "title": "Song",
@@ -314,21 +314,22 @@ def test_song_to_programme_albumart_propagates():
         "albumart": "https://somafm.com/img/song.jpg",
         "date": "1700000000",
     }
-    prog = song_to_programme(song, station)
-    assert prog is not None
-    assert prog.extra["albumart"] == "https://somafm.com/img/song.jpg"
+    work = song_to_work(song, station)
+    assert work is not None
+    assert work.extra["albumart"] == "https://somafm.com/img/song.jpg"
 
 
-def test_song_to_programme_uses_now_when_date_missing():
+def test_song_to_work_uses_now_when_date_missing():
     station = SomaFmStation({"id": "groovesalad", "title": "Groove Salad"})
-    prog = song_to_programme({"title": "Song"}, station)
-    assert prog is not None
+    work = song_to_work({"title": "Song"}, station)
+    assert work is not None
     # Falls back to current wall clock — must still be ISO-formatted.
-    assert prog.starts_at.startswith("20")
+    assert work.extra["played_at"].startswith("20")
 
 
-def test_song_to_programme_no_artist_uses_title_only():
+def test_song_to_work_no_artist_uses_title_only():
     station = SomaFmStation({"id": "groovesalad", "title": "Groove Salad"})
-    prog = song_to_programme({"title": "Solo"}, station)
-    assert prog is not None
-    assert prog.work.name == "Solo"
+    work = song_to_work({"title": "Solo"}, station)
+    assert work is not None
+    assert work.title == "Solo"
+    assert work.credits == []

@@ -73,7 +73,7 @@ Returns a list of dicts (most recent first) with keys `title`, `artist`,
 ### Modality
 
 ```python
-from radiosoma.converters import MODALITY  # {PlaybackModality.AUDIO}
+from radiosoma.converters import MODALITY  # {PlaybackType.AUDIO}
 ```
 
 ### `station_to_release(station) -> Release`
@@ -98,26 +98,22 @@ high-quality AAC, MP3, low-bitrate HE-AAC, lo-fi HE-AAC). All releases
 share the same underlying `Work` so consumers can deduplicate by
 identity.
 
-### `song_to_programme(song, station) -> Programme | None`
+### `song_to_work(song, station) -> Work | None`
 
-Builds a `mediavocab.Programme` from a single recent-tracks dict. The
-programme's:
+Builds a `MediaType.MUSIC` `Work` from a single recent-tracks dict
+(returns `None` for an entry with no title). The Work's:
 
-- `work` is an `EntityRef` whose `name` is `"Artist - Title"` and whose
-  `external_ids` contain `track_artist` / `track_album` when available.
-- `channel` is an `EntityRef` carrying the channel's `soma_fm_channel_id`.
-- `starts_at` is an ISO datetime derived from the unix `date` field.
-- `is_live` is `True`, `is_repeat` is `False`.
+- `title` is the song title.
+- `credits` carries the artist as a `PERFORMER` `Credit` (when present).
+- `extra` holds the ephemeral play state: `played_at` (ISO datetime
+  derived from the unix `date` field, falling back to now), `album`,
+  `albumart`, and the channel's `soma_fm_channel_id`.
 
-### `recent_tracks_to_programmes(songs, station) -> list[Programme]`
+A now-playing time is delivery-time state, not catalogue identity, so it
+rides in `extra` — there is no schedule/programme vocabulary type
+(mediavocab axiom A3).
 
-Vectorised form of `song_to_programme`; entries with empty titles are filtered out.
+### `recent_tracks_to_works(songs, station) -> list[Work]`
 
-### `recent_tracks_to_schedule(songs, station) -> Schedule`
-
-Wraps the recent-tracks list in a `mediavocab.Schedule` with:
-
-- `source = "somafm.com"`
-- `fetched_at` set to the current wall clock
-- `valid_from` / `valid_until` covering the timestamp window
-- `channel` pointing at the SOMA channel
+Maps the recent-tracks feed to a list of `MUSIC` Works, most-recent
+first; entries with empty titles are filtered out.
