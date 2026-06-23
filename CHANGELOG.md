@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a1](https://github.com/TigreGotico/radiosoma/tree/0.0.3a1) (2026-06-23)
+
+[Full Changelog](https://github.com/TigreGotico/radiosoma/compare/0.0.2a2...0.0.3a1)
+
+**Merged pull requests:**
+
+- fix: drop removed Programme/Schedule, emit recent tracks as MUSIC Works [\#13](https://github.com/TigreGotico/radiosoma/pull/13) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.2a2](https://github.com/TigreGotico/radiosoma/tree/0.0.2a2) (2026-05-07)
 
 [Full Changelog](https://github.com/TigreGotico/radiosoma/compare/0.0.2a1...0.0.2a2)
