@@ -18,9 +18,10 @@ SOMA FM channels follow mediavocab axiom 8:
 * Each distinct stream encoding (130 kbps AAC, 256 kbps MP3, 64 kbps
   HE-AAC, 32 kbps HE-AAC) is a separate `Release` of the same `Work`,
   with `StreamMode.CONTINUOUS`.
-* The provider is audio-only (`PlaybackModality.AUDIO`).
-* The recent-tracks feed surfaces as a `Schedule` of `Programme`
-  entries pointing at the channel `Work`.
+* The provider is audio-only (`PlaybackType.AUDIO`).
+* Each recently-played song from the recent-tracks feed surfaces as a
+  `MediaType.MUSIC` `Work`; the play time is ephemeral runtime state in
+  `extra["played_at"]`, not catalogue identity (axiom A3).
 
 ## Quick start
 
@@ -52,9 +53,10 @@ for release in station_to_releases(jazz):
 ```
 
 All releases share the same underlying `Work` so consumers can
-deduplicate by identity. The `Work` carries `country="US"`,
-`language="en"`, `media_type=RADIO`, and `content_genres` resolved
-against `mediavocab.taxonomy.genre.GENRE_*` constants where possible.
+deduplicate by identity. The `Work` carries `broadcaster_country="US"`
+(the RADIO country slot; read it via `work.country`), `language="en"`,
+`media_type=RADIO`, and `content_genres` resolved against
+`mediavocab.taxonomy.genre.GENRE_*` constants where possible.
 
 ### Highest-quality release only
 
@@ -72,27 +74,24 @@ print(release.work.content_genres)    # [GENRE_AMBIENT]
 
 ```python
 from radiosoma import get_recent_tracks, get_stations
-from radiosoma.converters import recent_tracks_to_schedule
+from radiosoma.converters import recent_tracks_to_works
 
 jazz = next(s for s in get_stations() if s.station_id == "groovesalad")
 songs = get_recent_tracks("groovesalad")
 
-schedule = recent_tracks_to_schedule(songs, jazz)
-print(schedule.source)               # "somafm.com"
-print(schedule.fetched_at)           # ISO datetime
-for prog in schedule.programmes[:3]:
-    print(prog.starts_at, prog.work.name)
-    print(prog.work.external_ids["track_artist"],
-          prog.work.external_ids["track_album"])
+for work in recent_tracks_to_works(songs, jazz)[:3]:
+    artist = work.credits[0].entity.name if work.credits else ""
+    print(work.extra["played_at"], f"{artist} — {work.title}")
+    print(work.extra.get("album", ""))
 ```
 
 ## Provider modality axis
 
 ```python
 from radiosoma.converters import MODALITY
-from mediavocab import PlaybackModality
+from mediavocab import PlaybackType
 
-assert MODALITY == {PlaybackModality.AUDIO}
+assert MODALITY == {PlaybackType.AUDIO}
 ```
 
 ## HTTP transport
@@ -139,5 +138,5 @@ is here purely for parity across the api_clients family.
 - [`examples/find_station.py`](examples/find_station.py) — keyword
   search by title / genre / description.
 - [`examples/mediavocab_jazz.py`](examples/mediavocab_jazz.py) — rich
-  mediavocab demo: multiple `Release`s per channel + a `Schedule` of
-  recent tracks.
+  mediavocab demo: multiple `Release`s per channel + recent tracks as
+  `MUSIC` Works.

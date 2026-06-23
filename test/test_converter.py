@@ -1,15 +1,15 @@
 """Offline unit tests for ``radiosoma.converters``."""
 from __future__ import annotations
 
-from mediavocab import MediaType, PlaybackModality, StreamMode
+from mediavocab import MediaType, StreamMode
+from mediavocab.taxonomy import PlaybackType, RelationRole
 from mediavocab.taxonomy import genre as _genre
 
 from radiosoma import SomaFmStation
 from radiosoma.converters import (
     MODALITY,
-    recent_tracks_to_programmes,
-    recent_tracks_to_schedule,
-    song_to_programme,
+    recent_tracks_to_works,
+    song_to_work,
     station_to_release,
     station_to_releases,
 )
@@ -37,7 +37,7 @@ def _station(**overrides):
 
 
 def test_modality_is_audio_only():
-    assert MODALITY == {PlaybackModality.AUDIO}
+    assert MODALITY == {PlaybackType.AUDIO}
 
 
 def test_to_release_uses_radio_media_type():
@@ -171,7 +171,7 @@ def test_to_release_handles_single_dict_highestpls():
     assert rel.codec == "aac"
 
 
-def test_song_to_programme_basic():
+def test_song_to_work_basic():
     station = _station()
     song = {
         "title": "Luminis",
@@ -179,47 +179,37 @@ def test_song_to_programme_basic():
         "album": "Urban Woman .01",
         "date": "1778114640",
     }
-    prog = song_to_programme(song, station)
-    assert prog is not None
-    assert prog.work.name == "Luis Junior - Luminis"
-    assert prog.work.external_ids["track_artist"] == "Luis Junior"
-    assert prog.work.external_ids["track_album"] == "Urban Woman .01"
-    assert prog.channel.external_ids["soma_fm_channel_id"] == "groovesalad"
-    assert prog.is_live is True
-    assert prog.is_repeat is False
-    assert prog.extra["album"] == "Urban Woman .01"
-    assert prog.extra["artist"] == "Luis Junior"
-    # IsoDate validator accepts ISO datetimes with offset.
-    assert prog.starts_at.startswith("20")
+    work = song_to_work(song, station)
+    assert work is not None
+    assert work.media_type == MediaType.MUSIC
+    assert work.title == "Luminis"
+    assert len(work.credits) == 1
+    assert work.credits[0].entity.name == "Luis Junior"
+    assert work.credits[0].relation_role == RelationRole.PERFORMER
+    assert work.extra["album"] == "Urban Woman .01"
+    assert work.extra["soma_fm_channel_id"] == "groovesalad"
+    # played_at is an ISO datetime (ephemeral runtime state).
+    assert work.extra["played_at"].startswith("20")
 
 
-def test_song_to_programme_skips_empty_title():
-    assert song_to_programme({"title": "", "date": "1778114640"}, _station()) is None
+def test_song_to_work_skips_empty_title():
+    assert song_to_work({"title": "", "date": "1778114640"}, _station()) is None
 
 
-def test_recent_tracks_to_programmes_filters_empty():
+def test_song_to_work_no_artist_has_no_credits():
+    work = song_to_work({"title": "Solo", "date": "1778114640"}, _station())
+    assert work is not None
+    assert work.credits == []
+
+
+def test_recent_tracks_to_works_filters_empty():
     station = _station()
     songs = [
         {"title": "A", "artist": "X", "date": "1778114640"},
         {"title": "", "artist": "", "date": "1778114000"},
         {"title": "B", "artist": "Y", "date": "1778113000"},
     ]
-    progs = recent_tracks_to_programmes(songs, station)
-    assert len(progs) == 2
-    assert progs[0].work.name == "X - A"
-    assert progs[1].work.name == "Y - B"
-
-
-def test_recent_tracks_to_schedule_wraps_programmes():
-    station = _station()
-    songs = [
-        {"title": "A", "artist": "X", "date": "1778114640"},
-        {"title": "B", "artist": "Y", "date": "1778113000"},
-    ]
-    sched = recent_tracks_to_schedule(songs, station)
-    assert sched.source == "somafm.com"
-    assert sched.channel.external_ids["soma_fm_channel_id"] == "groovesalad"
-    assert len(sched.programmes) == 2
-    assert sched.fetched_at is not None
-    # window covers both timestamps.
-    assert sched.valid_from <= sched.valid_until
+    works = recent_tracks_to_works(songs, station)
+    assert len(works) == 2
+    assert works[0].title == "A"
+    assert works[1].title == "B"
