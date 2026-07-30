@@ -1,7 +1,8 @@
 from collections import defaultdict
+from typing import Iterable, List, Optional
 from xml.etree import cElementTree as ET
 
-import requests
+from radiosoma.transport import default_session
 
 
 def _etree2dict(t):
@@ -34,9 +35,79 @@ def _xml2dict(xml_string):
         return {}
 
 
+def _as_list(value):
+    """Normalise a field that can be a single dict or a list of dicts."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+# Per SOMA FM convention the bitrate is embedded in the playlist filename
+# (e.g. ``groovesalad130.pls`` → 130 kbps).  Where the playlist has no
+# numeric suffix (e.g. ``groovesalad.pls``) SOMA serves the legacy 128 kbps
+# MP3 stream.
+_LEGACY_MP3_DEFAULT_BITRATE = "128"
+
+
+def _parse_bitrate_from_url(url: str) -> str:
+    """Extract a kbps figure from a SOMA playlist URL."""
+    if not url:
+        return ""
+    # last path component, strip extension
+    tail = url.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+    digits = ""
+    for ch in reversed(tail):
+        if ch.isdigit():
+            digits = ch + digits
+        else:
+            break
+    return digits or _LEGACY_MP3_DEFAULT_BITRATE
+
+
+# Map SOMA's ``format`` attribute to canonical codec / container hints.
+# ``aac`` is high-bitrate AAC-LC (in ADTS), ``aacp`` is HE-AAC v2 (lower
+# bitrate, parametric stereo), ``mp3`` is MPEG-1 Layer 3.
+_CODEC_BY_FORMAT = {
+    "aac": "aac",
+    "aacp": "he-aac",
+    "mp3": "mp3",
+}
+_CONTAINER_BY_FORMAT = {
+    "aac": "adts",
+    "aacp": "adts",
+    "mp3": "mp3",
+}
+
+
+class StreamVariant:
+    """A single bitrate/codec offering for a SOMA channel."""
+
+    __slots__ = ("url", "format", "bitrate", "source")
+
+    def __init__(self, url: str, fmt: str, bitrate: str, source: str):
+        self.url = url
+        self.format = fmt
+        self.bitrate = bitrate
+        self.source = source  # "highestpls" | "fastpls" | "slowpls"
+
+    @property
+    def codec(self) -> str:
+        return _CODEC_BY_FORMAT.get(self.format, self.format or "")
+
+    @property
+    def container(self) -> str:
+        return _CONTAINER_BY_FORMAT.get(self.format, "")
+
+    def __repr__(self) -> str:
+        return f"StreamVariant({self.url!r}, {self.format!r}, {self.bitrate!r}kbps)"
+
+
 class SomaFmStation:
-    def __init__(self, raw):
+    def __init__(self, raw, session=None):
         self.raw = raw
+        self.session = session if session is not None else default_session()
 
     @property
     def station_id(self):
@@ -61,46 +132,77 @@ class SomaFmStation:
         return self.raw.get("genre")
 
     @property
+    def dj(self) -> str:
+        v = self.raw.get("dj") or ""
+        return v if isinstance(v, str) else ""
+
+    @property
+    def listeners(self) -> Optional[int]:
+        v = self.raw.get("listeners")
+        try:
+            return int(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    @property
+    def last_playing(self) -> str:
+        v = self.raw.get("lastPlaying") or ""
+        return v if isinstance(v, str) else ""
+
+    @property
+    def updated(self) -> Optional[int]:
+        v = self.raw.get("updated")
+        try:
+            return int(v) if v is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    def _variants_for(self, key: str) -> List[StreamVariant]:
+        out: List[StreamVariant] = []
+        for entry in _as_list(self.raw.get(key)):
+            if not isinstance(entry, dict):
+                continue
+            url = entry.get("text") or ""
+            if not url:
+                continue
+            fmt = (entry.get("format") or "").lower()
+            out.append(StreamVariant(
+                url=url,
+                fmt=fmt,
+                bitrate=_parse_bitrate_from_url(url),
+                source=key,
+            ))
+        return out
+
+    @property
+    def stream_variants(self) -> List[StreamVariant]:
+        """All available stream variants in priority order:
+        ``highestpls`` → ``fastpls`` → ``slowpls``."""
+        return (
+            self._variants_for("highestpls")
+            + self._variants_for("fastpls")
+            + self._variants_for("slowpls")
+        )
+
+    @property
     def streams(self):
-        streams = []
-        for stream in self.raw.get("fastpls", []):
-            try:
-                streams.append(stream["text"])
-            except (KeyError, TypeError):
-                continue
-        for stream in self.raw.get("highestpls", []):
-            try:
-                streams.append(stream["text"])
-            except (KeyError, TypeError):
-                continue
-        return streams
+        """All stream URLs (legacy API, kept for compatibility)."""
+        return [v.url for v in self.stream_variants]
 
     @property
     def best_stream(self):
-        for stream in self.raw.get("highestpls", []):
-            try:
-                return stream["text"]
-            except (KeyError, TypeError):
-                continue
-        for stream in self.raw.get("fastpls", []):
-            try:
-                return stream["text"]
-            except (KeyError, TypeError):
-                continue
-        return None
+        """Highest-quality stream URL (first ``highestpls``, falling
+        back to the first ``fastpls`` / ``slowpls``)."""
+        variants = self.stream_variants
+        return variants[0].url if variants else None
 
     @property
     def fastest_stream(self):
-        for stream in self.raw.get("fastpls", []):
-            try:
-                return stream["text"]
-            except (KeyError, TypeError):
-                continue
-        for stream in self.raw.get("highestpls", []):
-            try:
-                return stream["text"]
-            except (KeyError, TypeError):
-                continue
+        """Lowest-latency stream URL (first ``fastpls``, falling back
+        to ``highestpls`` / ``slowpls``)."""
+        for key in ("fastpls", "highestpls", "slowpls"):
+            for v in self._variants_for(key):
+                return v.url
         return None
 
     @property
@@ -122,11 +224,28 @@ class SomaFmStation:
         return self.title + ":" + str(self)
 
 
-def get_stations():
-    xml = requests.get("https://api.somafm.com/channels.xml").text
+def get_stations(session=None) -> Iterable[SomaFmStation]:
+    sess = session if session is not None else default_session()
+    xml = sess.get("https://api.somafm.com/channels.xml").text
     data = _xml2dict(xml)
-    channels = data.get("channels", {}).get("channel", [])
+    channels = (data.get("channels") or {}).get("channel", []) or []
     if isinstance(channels, dict):
         channels = [channels]
     for channel in channels:
-        yield SomaFmStation(channel)
+        yield SomaFmStation(channel, session=sess)
+
+
+def get_recent_tracks(channel_id, session=None):
+    """Fetch the recent-tracks feed for a SOMA FM channel.
+
+    Returns a list of dicts (most recent first) with keys
+    ``title``, ``artist``, ``album``, ``albumart``, ``date``.
+    """
+    sess = session if session is not None else default_session()
+    url = f"https://somafm.com/songs/{channel_id}.xml"
+    xml = sess.get(url).text
+    data = _xml2dict(xml)
+    songs = (data.get("songs") or {}).get("song", []) or []
+    if isinstance(songs, dict):
+        songs = [songs]
+    return songs

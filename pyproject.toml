@@ -9,7 +9,11 @@ description = "SomaFM Python API"
 license = { text = "Apache-2.0" }
 authors = [{ name = "JarbasAi" }]
 requires-python = ">=3.8"
-dependencies = ["requests"]
+dependencies = ["requests", "mediavocab>=1.0.0a0"]
+
+[project.optional-dependencies]
+test = ["pytest", "vcrpy", "pytest-vcr"]
+stealth = ["curl-cffi"]
 
 [project.urls]
 Homepage = "https://github.com/OpenJarbas/radiosoma"

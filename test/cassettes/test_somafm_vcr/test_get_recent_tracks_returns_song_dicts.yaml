@@ -1,0 +1,326 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate, br
+      Connection:
+      - keep-alive
+    method: GET
+    uri: https://somafm.com/songs/groovesalad.xml
+  response:
+    body:
+      string: '<?xml version="1.0" encoding="ISO-8859-1"?>
+
+        <songs id="groovesalad">
+
+        <song>
+
+        <title><![CDATA[Boogie Heights]]></title>
+
+        <artist><![CDATA[Heights Of Abraham]]></artist>
+
+        <album><![CDATA[Electric Hush]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778168685</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[True Clown]]></title>
+
+        <artist><![CDATA[Reef Project]]></artist>
+
+        <album><![CDATA[LQ-1086 (Looq Records)]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778168333</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Time Drops]]></title>
+
+        <artist><![CDATA[Patchwork]]></artist>
+
+        <album><![CDATA[Odeon]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778168088</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[One Day]]></title>
+
+        <artist><![CDATA[Luis Junior]]></artist>
+
+        <album><![CDATA[Futura Electronica Downtempo, Volume 1]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778167728</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Music Is An Open Sky]]></title>
+
+        <artist><![CDATA[As One]]></artist>
+
+        <album><![CDATA[21st Century Soul]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778167424</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Sad Flower]]></title>
+
+        <artist><![CDATA[Keston And Westdal]]></artist>
+
+        <album><![CDATA[Truth is Stranger]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778167040</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[P-A-Y-R]]></title>
+
+        <artist><![CDATA[Cutler]]></artist>
+
+        <album><![CDATA[The Best Things In Life Aren''t Things-redux]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778166711</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Again (Featuring Adel Tawil)]]></title>
+
+        <artist><![CDATA[Chris Zippel]]></artist>
+
+        <album><![CDATA[Minus One]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778166417</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[On The Drift]]></title>
+
+        <artist><![CDATA[Rena Jones Ft The New Millennium Orchestra]]></artist>
+
+        <album><![CDATA[Indra''s Web]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778166175</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Landscape (Cydelix Remix)]]></title>
+
+        <artist><![CDATA[Kick Bong]]></artist>
+
+        <album><![CDATA[Flower Power]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778165897</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[I''ll Tickle Your Catastrophe]]></title>
+
+        <artist><![CDATA[Steve Cobby]]></artist>
+
+        <album><![CDATA[Nostalgia Intensa]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778165613</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Immaculate Sky]]></title>
+
+        <artist><![CDATA[State Azure]]></artist>
+
+        <album><![CDATA[Phantoms]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778165385</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Free Your Mind]]></title>
+
+        <artist><![CDATA[Jens Buchert]]></artist>
+
+        <album><![CDATA[Dream Lounge (Volume 1)]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778165120</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Deep Ocean]]></title>
+
+        <artist><![CDATA[Thomas Lemmer & Andreas Bach]]></artist>
+
+        <album><![CDATA[Night Travellers]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778164846</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Dresden]]></title>
+
+        <artist><![CDATA[Cobby & Porky]]></artist>
+
+        <album><![CDATA[Sirens EP]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778164509</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Busenfreund (Baby Mammoth Rmx)]]></title>
+
+        <artist><![CDATA[Tosca]]></artist>
+
+        <album><![CDATA[space night vol. VIII]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778164093</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Divent]]></title>
+
+        <artist><![CDATA[Fresh Moods]]></artist>
+
+        <album><![CDATA[Boule]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778163798</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[It Was A Bug!]]></title>
+
+        <artist><![CDATA[Electroslide]]></artist>
+
+        <album><![CDATA[Electroslide]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778163642</date>
+
+        </song>
+
+        <song>
+
+        <title><![CDATA[Thunder Song]]></title>
+
+        <artist><![CDATA[Bluetech]]></artist>
+
+        <album><![CDATA[Rainforest Reverberation]]></album>
+
+        <albumart><![CDATA[]]></albumart>
+
+        <date>1778163342</date>
+
+        </song>
+
+        </songs>
+
+        '
+    headers:
+      Access-Control-Allow-Headers:
+      - '*'
+      Access-Control-Allow-Methods:
+      - GET, POST, PUT, DELETE, OPTIONS
+      Access-Control-Allow-Origin:
+      - '*'
+      Cache-Control:
+      - max-age=10
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/xml
+      Date:
+      - Thu, 07 May 2026 15:48:27 GMT
+      ETag:
+      - W/"f70-6513c2905390d"
+      Expires:
+      - Thu, 07 May 2026 15:48:37 GMT
+      Last-Modified:
+      - Thu, 07 May 2026 15:44:48 GMT
+      Server:
+      - nginx
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-Proxy-Cache:
+      - HIT
+      X-SomaVersion:
+      - '202110181757'
+      content-length:
+      - '3952'
+    status:
+      code: 200
+      message: OK
+version: 1

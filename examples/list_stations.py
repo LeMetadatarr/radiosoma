@@ -1,9 +1,8 @@
-"""List all SomaFM stations with their stream URLs."""
+"""List all SomaFM stations with their stream variants."""
 from radiosoma import get_stations
 
 for station in get_stations():
     print(f"{station.title} [{station.genre}]")
-    print(f"  best:    {station.best_stream}")
-    print(f"  fastest: {station.fastest_stream}")
-    print(f"  direct:  {station.direct_stream}")
+    for v in station.stream_variants:
+        print(f"  {v.source:>10}  {v.format:>4} {v.bitrate:>4}kbps  {v.url}")
     print()
