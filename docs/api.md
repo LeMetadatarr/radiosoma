@@ -49,9 +49,9 @@ Returns a generator of `SomaFmStation` objects.
 
 ### Stream URL priority
 
-- `best_stream` — first `highestpls`, falls back to `fastpls`/`slowpls`.
-- `fastest_stream` — first `fastpls`, falls back to `highestpls`/`slowpls`.
-- `direct_stream` / `alt_direct_stream` — always available, constructed from `station_id`.
+- `best_stream`: tries `highestpls` first, then falls back to `fastpls` or `slowpls`.
+- `fastest_stream`: tries `fastpls` first, then falls back to `highestpls` or `slowpls`.
+- `direct_stream` / `alt_direct_stream`: always available. Both are constructed from `station_id`.
 
 ## get_recent_tracks(channel_id)
 
@@ -110,10 +110,13 @@ Builds a `MediaType.MUSIC` `Work` from a single recent-tracks dict
   `albumart`, and the channel's `soma_fm_channel_id`.
 
 A now-playing time is delivery-time state, not catalogue identity, so it
-rides in `extra` — there is no schedule/programme vocabulary type
-(mediavocab axiom A3).
+rides in `extra`. Mediavocab has no schedule or programme vocabulary
+type for it (axiom A3).
 
 ### `recent_tracks_to_works(songs, station) -> list[Work]`
 
 Maps the recent-tracks feed to a list of `MUSIC` Works, most-recent
 first; entries with empty titles are filtered out.
+
+---
+[Home](../README.md)

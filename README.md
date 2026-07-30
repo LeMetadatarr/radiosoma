@@ -124,8 +124,8 @@ pip install radiosoma[stealth]
 export RADIOSOMA_TRANSPORT=curl_cffi
 ```
 
-SomaFM is a friendly open API and does not need stealth transport — this
-is here purely for parity across the api_clients family.
+SomaFM is an open API and does not need stealth transport. This option
+exists only for parity across the api_clients family.
 
 ## Docs
 
@@ -133,10 +133,20 @@ is here purely for parity across the api_clients family.
 
 ## Examples
 
-- [`examples/list_stations.py`](examples/list_stations.py) — list every
+- [`examples/list_stations.py`](examples/list_stations.py): list every
   SOMA channel with all stream variants.
-- [`examples/find_station.py`](examples/find_station.py) — keyword
-  search by title / genre / description.
-- [`examples/mediavocab_jazz.py`](examples/mediavocab_jazz.py) — rich
-  mediavocab demo: multiple `Release`s per channel + recent tracks as
-  `MUSIC` Works.
+- [`examples/find_station.py`](examples/find_station.py): search by
+  title, genre, or description.
+- [`examples/mediavocab_jazz.py`](examples/mediavocab_jazz.py): mediavocab
+  demo with multiple `Release`s per channel and recent tracks as `MUSIC`
+  Works.
+
+## Related projects
+
+- [mediavocab](https://github.com/JarbasAl/mediavocab): the media
+  vocabulary that defines `Work`, `Release`, and the other types this
+  library converts SOMA FM data into.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).
