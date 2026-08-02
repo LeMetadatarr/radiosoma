@@ -1,7 +1,7 @@
 # radiosoma
 
 Python client for the [SomaFM](https://somafm.com) public channels API,
-modelled with [mediavocab](https://github.com/JarbasAl/mediavocab) as the
+modelled with [mediavocab](https://github.com/TigreGotico/mediavocab) as the
 canonical media vocabulary.
 
 ## Install
@@ -143,7 +143,7 @@ exists only for parity across the api_clients family.
 
 ## Related projects
 
-- [mediavocab](https://github.com/JarbasAl/mediavocab): the media
+- [mediavocab](https://github.com/TigreGotico/mediavocab): the media
   vocabulary that defines `Work`, `Release`, and the other types this
   library converts SOMA FM data into.
 

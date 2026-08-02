@@ -68,7 +68,7 @@ Returns a list of dicts (most recent first) with keys `title`, `artist`,
 ## mediavocab converters
 
 `radiosoma.converters` translates radiosoma data into the canonical
-[mediavocab](https://github.com/JarbasAl/mediavocab) types.
+[mediavocab](https://github.com/TigreGotico/mediavocab) types.
 
 ### Modality
 

@@ -16,7 +16,7 @@ test = ["pytest", "vcrpy", "pytest-vcr"]
 stealth = ["curl-cffi"]
 
 [project.urls]
-Homepage = "https://github.com/OpenJarbas/radiosoma"
+Homepage = "https://github.com/LeMetadatarr/radiosoma"
 
 [tool.setuptools.dynamic]
 version = { attr = "radiosoma.version.__version__" }
