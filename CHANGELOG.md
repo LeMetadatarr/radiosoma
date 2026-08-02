@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a4](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a4) (2026-08-02)
+
+[Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a3...0.0.3a4)
+
+**Merged pull requests:**
+
+- fix: pin mediavocab\>=2.0.0a0 \(2.x prerelease has the API radiosoma targets\) [\#20](https://github.com/LeMetadatarr/radiosoma/pull/20) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.3a3](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a3) (2026-08-02)
 
 [Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a2...0.0.3a3)
