@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a6](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a6) (2026-08-03)
+
+[Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a5...0.0.3a6)
+
+**Merged pull requests:**
+
+- deep: bugs, real-fixture tests, docs/examples [\#22](https://github.com/LeMetadatarr/radiosoma/pull/22) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.3a5](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a5) (2026-08-03)
 
 [Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a4...0.0.3a5)
