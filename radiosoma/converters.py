@@ -83,8 +83,10 @@ _GENRE_MAP = {
     # "news" / "talk" are broadcast formats, not genres (T1) — SOMA has no
     # such channels; an unknown tag falls through as a raw lower-cased string.
     "spoken word": _genre.GENRE_SPOKEN_WORD,
+    "spoken": _genre.GENRE_SPOKEN_WORD,  # SOMA's actual live tag (e.g. "sfinsf")
     "drone": _genre.GENRE_AMBIENT,
     "experimental": _genre.GENRE_AMBIENT,
+    "chill": _genre.GENRE_AMBIENT,  # SOMA's actual live tag (e.g. "chillits")
 }
 
 
