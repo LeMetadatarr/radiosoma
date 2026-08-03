@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a5](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a5) (2026-08-03)
+
+[Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a4...0.0.3a5)
+
+**Merged pull requests:**
+
+- ci: grant conventional-label workflow write permissions [\#21](https://github.com/LeMetadatarr/radiosoma/pull/21) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.0.3a4](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a4) (2026-08-02)
 
 [Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a3...0.0.3a4)
