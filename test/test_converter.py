@@ -97,6 +97,24 @@ def test_to_release_genre_pipe_separator():
     assert "specials" in rel.work.content_genres
 
 
+def test_to_release_genre_spoken_tag_resolves_to_spoken_word():
+    # Regression: SOMA's "SF in SF" channel tags itself with the live
+    # ``spoken`` genre string (not ``spoken word``), confirmed against
+    # https://api.somafm.com/channels.xml (channel id ``sfinsf``).
+    rel = station_to_release(_station(genre="spoken"))
+    assert rel.work.content_genres == [_genre.GENRE_SPOKEN_WORD]
+
+
+def test_to_release_genre_chill_tag_resolves_to_ambient():
+    # Regression: SOMA's "Chillits Radio" channel tags itself
+    # ``chill|live`` (not ``chillout``), confirmed against
+    # https://api.somafm.com/channels.xml (channel id ``chillits``).
+    rel = station_to_release(_station(genre="chill|live"))
+    assert _genre.GENRE_AMBIENT in rel.work.content_genres
+    # "live" is a broadcast format, not a genre — falls through raw.
+    assert "live" in rel.work.content_genres
+
+
 def test_to_release_genre_list_passed_through():
     rel = station_to_release(_station(genre=["Ambient", "Rock"]))
     assert _genre.GENRE_AMBIENT in rel.work.content_genres
