@@ -25,5 +25,9 @@ def default_session():
             return curl_requests.Session(impersonate="chrome")
         except ImportError:
             pass
-    import requests
-    return requests.Session()
+    try:
+        from unblock_requests import CloudflareSession
+        return CloudflareSession(env_prefix="RADIOSOMA", wayback_fallback=True)
+    except Exception:
+        import requests
+        return requests.Session()
