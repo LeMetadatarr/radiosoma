@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.3a7](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a7) (2026-09-01)
+
+[Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a6...0.0.3a7)
+
+**Merged pull requests:**
+
+- Update actions/setup-python action to v7 [\#16](https://github.com/LeMetadatarr/radiosoma/pull/16) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.0.3a6](https://github.com/LeMetadatarr/radiosoma/tree/0.0.3a6) (2026-08-03)
 
 [Full Changelog](https://github.com/LeMetadatarr/radiosoma/compare/0.0.3a5...0.0.3a6)
